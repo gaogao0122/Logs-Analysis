@@ -6,7 +6,7 @@ Project: Log Analysis
 * enter `python report_tool.py ` in terminal.
 
 ## The SQL queries for each question.
-* 1. What are the most popular three articles of all time?
+1. What are the most popular three articles of all time?
 ```
 select A.title, L.views
 from articles as A,
@@ -20,7 +20,7 @@ from articles as A,
 where A.title ilike concat('%', L.name, '%')
 order by L.views desc;
 ```
-* 2. Who are the most popular article authors of all time?
+2. Who are the most popular article authors of all time?
 ```
 select A.name, sum(L.views) as times from
 (select articles.title, authors.name
@@ -33,7 +33,7 @@ where A.title ilike concat('%', L.title, '%')
 group by A.name
 order by times desc;
 ```
-* 3. On which days did more than 1% of requests lead to errors?
+3. On which days did more than 1% of requests lead to errors?
 ```
 select F.date,
 (round(F.error_status::numeric/F.total_status::numeric*100,1)) as error_percentage from
