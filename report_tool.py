@@ -6,29 +6,23 @@ def main():
     db = psycopg2.connect("dbname = news")
     cursor = db.cursor()
     # 1. What are the most popular three articles of all time
-    cursor.execute("select A.title, L.views from articles as A," +
-                   " (select replace(replace(log.path, " +
-                   "'/article/', ''), '-', ' ') " +
-                   "as name, count(path) as views from log " +
-                   "where path != '/' group by path " +
-                   "order by views desc limit 3) as L " +
-                   "where A.title ilike concat('%', L.name, '%') " +
-                   "order by L.views desc")
+    cursor.execute("select A.title, count(*) as views " +
+                   "from articles as A, log as L " +
+                   "where L.path = concat('/article/',A.slug) " +
+                   "group by title " +
+                   "order by views desc " +
+                   "limit 3")
     result = cursor.fetchall()
     print("-----------------------Question 1---------------------------")
     print("1. What are the most popular three articles of all time?\n")
     for tuple in result:
         print (tuple[0] + " -- " + str(tuple[1]) + " views")
     # 2. Who are the most popular article authors of all time?
-    cursor.execute("select A.name, sum(L.views) as times from " +
-                   "(select articles.title, authors.name from articles, " +
-                   "authors where articles.author = authors.id) as A, " +
-                   "(select replace(replace(log.path, " +
-                   "'/article/', ''),'-',' ') " +
-                   "as title, count(log.path) as views " +
-                   "from log group by path) as L " +
-                   "where A.title ilike concat('%', L.title, '%') " +
-                   "group by A.name order by times desc")
+    cursor.execute("select A.name, count(*) as views from " +
+                   "(select title, slug, name from articles, authors " +
+                   "where articles.author = authors.id) as A, log as L " +
+                   "where L.path = concat('/article/', A.slug) " +
+                   "group by A.name order by views desc")
     result = cursor.fetchall()
     print("\n-----------------------Question 2---------------------------")
     print("2. Who are the most popular article authors of all time?\n")
